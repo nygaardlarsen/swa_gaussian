@@ -74,7 +74,7 @@ target/
 *.out
 *.log
 *.eps
-*.sh
+# *.sh
 *.pdf
 .DS_Store
 *.err
