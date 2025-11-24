@@ -3,9 +3,8 @@ import unittest
 import gpytorch
 
 # from gpytorch.lazy import RootLazyTensor, DiagLazyTensor, AddedDiagLazyTensor // old gpytorch
-from gpytorch.lazy.root_lazy_tensor import RootLazyTensor
-from gpytorch.lazy.diag_lazy_tensor import DiagLazyTensor
-from gpytorch.lazy.added_diag_lazy_tensor import AddedDiagLazyTensor
+
+from linear_operator.operators import RootLinearOperator, DiagLinearOperator, AddedDiagLinearOperator
 from gpytorch.distributions import MultivariateNormal
 
 torch.backends.cudnn.deterministic = True
@@ -27,13 +26,13 @@ class Test_LowRank_P_Diag(unittest.TestCase):
         A = torch.randn(N, device=device).abs() * 1e-3 + 0.1
 
         # this is a lazy tensor for DD'
-        D_lt = RootLazyTensor(D)
+        D_lt = RootLinearOperator(D)
 
         # this is a lazy tensor for diag(A)
-        diag_term = DiagLazyTensor(A)
+        diag_term = DiagLinearOperator(A)
 
         # DD' + diag(A)
-        lowrank_pdiag_lt = AddedDiagLazyTensor(diag_term, D_lt)
+        lowrank_pdiag_lt = AddedDiagLinearOperator(diag_term, D_lt)
 
         # z \sim N(0,I), mean = 1
         z = torch.randn(N, device=device)

@@ -10,9 +10,7 @@ import copy
 
 import gpytorch
 
-from gpytorch.lazy.root_lazy_tensor import RootLazyTensor
-from gpytorch.lazy.diag_lazy_tensor import DiagLazyTensor
-from gpytorch.lazy.added_diag_lazy_tensor import AddedDiagLazyTensor
+from linear_operator.operators import RootLinearOperator, DiagLinearOperator, AddedDiagLinearOperator
 # from gpytorch.lazy import RootLazyTensor, DiagLazyTensor, AddedDiagLazyTensor // old gpytorch
 from gpytorch.distributions import MultivariateNormal
 
@@ -243,9 +241,9 @@ class SWAG(torch.nn.Module):
         mean = flatten(mean)
         var = flatten(var)
 
-        cov_mat_lt = RootLazyTensor(cov_mat_root.t())
-        var_lt = DiagLazyTensor(var + 1e-6)
-        covar_lt = AddedDiagLazyTensor(var_lt, cov_mat_lt)
+        cov_mat_lt = RootLinearOperator(cov_mat_root.t())
+        var_lt = DiagLinearOperator(var + 1e-6)
+        covar_lt = AddedDiagLinearOperator(var_lt, cov_mat_lt)
         qdist = MultivariateNormal(mean, covar_lt)
 
         with gpytorch.settings.num_trace_samples(
@@ -256,9 +254,9 @@ class SWAG(torch.nn.Module):
     def block_logdet(self, var, cov_mat_root):
         var = flatten(var)
 
-        cov_mat_lt = RootLazyTensor(cov_mat_root.t())
-        var_lt = DiagLazyTensor(var + 1e-6)
-        covar_lt = AddedDiagLazyTensor(var_lt, cov_mat_lt)
+        cov_mat_lt = RootLinearOperator(cov_mat_root.t())
+        var_lt = DiagLinearOperator(var + 1e-6)
+        covar_lt = AddedDiagLinearOperator(var_lt, cov_mat_lt)
 
         return covar_lt.log_det()
 
