@@ -7,9 +7,14 @@ import torch
 import torch.nn.functional as F
 import torchvision
 import numpy as np
+import torch.nn as nn
 
 from swag import data, models, utils, losses
 from swag.posteriors import SWAG
+
+from sklearn.datasets import make_moons
+from torch.utils.data import TensorDataset, DataLoader
+
 
 parser = argparse.ArgumentParser(description="SGD/SWA training")
 parser.add_argument(
@@ -180,16 +185,52 @@ print("Using model %s" % args.model)
 model_cfg = getattr(models, args.model)
 
 print("Loading dataset %s from %s" % (args.dataset, args.data_path))
-loaders, num_classes = data.loaders(
-    args.dataset,
-    args.data_path,
-    args.batch_size,
-    args.num_workers,
-    model_cfg.transform_train,
-    model_cfg.transform_test,
-    use_validation=not args.use_test,
-    split_classes=args.split_classes,
-)
+if args.dataset.lower() == "two_moons":
+    X, y = make_moons(n_samples=500, noise=0.2, random_state=args.seed)
+    X = torch.tensor(X, dtype=torch.float32)
+    y = torch.tensor(y, dtype=torch.long)
+    dataset = TensorDataset(X, y)
+
+    train_size = int(0.8 * len(dataset))
+    test_size = len(dataset) - train_size
+    train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
+
+    loaders = {
+        "train": DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True),
+        "test": DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False),
+    }
+    num_classes = 2
+else:
+    loaders, num_classes = data.loaders(
+        args.dataset,
+        args.data_path,
+        args.batch_size,
+        args.num_workers,
+        model_cfg.transform_train,
+        model_cfg.transform_test,
+        use_validation=not args.use_test,
+        split_classes=args.split_classes,
+    )
+
+if args.model.lower() == "2d_mlp":
+    class TwoMoonsMLP(nn.Module):
+        def __init__(self, hidden_dim=32):
+            super().__init__()
+            self.net = nn.Sequential(
+                nn.Linear(2, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, 2)  # 2 output classes
+            )
+        
+        def forward(self, x):
+            return self.net(x)
+
+    model_cfg = lambda: None 
+    model_cfg.base = TwoMoonsMLP
+    model_cfg.args = ()
+    model_cfg.kwargs = {}
 
 print("Preparing model")
 print(*model_cfg.args)
