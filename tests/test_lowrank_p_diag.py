@@ -2,7 +2,10 @@ import torch
 import unittest
 import gpytorch
 
-from gpytorch.lazy import RootLazyTensor, DiagLazyTensor, AddedDiagLazyTensor
+# from gpytorch.lazy import RootLazyTensor, DiagLazyTensor, AddedDiagLazyTensor // old gpytorch
+from gpytorch.lazy.root_lazy_tensor import RootLazyTensor
+from gpytorch.lazy.diag_lazy_tensor import DiagLazyTensor
+from gpytorch.lazy.added_diag_lazy_tensor import AddedDiagLazyTensor
 from gpytorch.distributions import MultivariateNormal
 
 torch.backends.cudnn.deterministic = True

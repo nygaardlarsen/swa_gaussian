@@ -9,7 +9,11 @@ from torch.distributions.normal import Normal
 import copy
 
 import gpytorch
-from gpytorch.lazy import RootLazyTensor, DiagLazyTensor, AddedDiagLazyTensor
+
+from gpytorch.lazy.root_lazy_tensor import RootLazyTensor
+from gpytorch.lazy.diag_lazy_tensor import DiagLazyTensor
+from gpytorch.lazy.added_diag_lazy_tensor import AddedDiagLazyTensor
+# from gpytorch.lazy import RootLazyTensor, DiagLazyTensor, AddedDiagLazyTensor // old gpytorch
 from gpytorch.distributions import MultivariateNormal
 
 from ..utils import flatten, unflatten_like
