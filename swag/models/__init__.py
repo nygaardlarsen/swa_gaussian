@@ -5,5 +5,6 @@ from .vgg_dropout import *
 from .wide_resnet import *
 from .wide_resnet_dropout import *
 from .lenet5 import *
+from .two_d_mlp import *
 
 from .tiramisu import *

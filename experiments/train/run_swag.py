@@ -212,26 +212,6 @@ else:
         split_classes=args.split_classes,
     )
 
-if args.model.lower() == "2d_mlp":
-    class TwoMoonsMLP(nn.Module):
-        def __init__(self, hidden_dim=32):
-            super().__init__()
-            self.net = nn.Sequential(
-                nn.Linear(2, hidden_dim),
-                nn.ReLU(),
-                nn.Linear(hidden_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Linear(hidden_dim, 2)  # 2 output classes
-            )
-        
-        def forward(self, x):
-            return self.net(x)
-
-    model_cfg = lambda: None 
-    model_cfg.base = TwoMoonsMLP
-    model_cfg.args = ()
-    model_cfg.kwargs = {}
-
 print("Preparing model")
 print(*model_cfg.args)
 model = model_cfg.base(*model_cfg.args, num_classes=num_classes, **model_cfg.kwargs)
