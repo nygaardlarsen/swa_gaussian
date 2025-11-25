@@ -3,22 +3,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_moons
 from swag.posteriors.swag import SWAG
-from swag.models import TwoDMLP   # du skal have denne i models/
+from swag.models import TwoDMLP  
 import os
 
 X, y = make_moons(n_samples=2000, noise=0.1)
 X = torch.tensor(X, dtype=torch.float32)
 y = torch.tensor(y)
 
-
 model_dir = "/work/SWAG/models/2dmlp_two_moons_swag"
-ckpt_path = os.path.join(model_dir, "swag-100.pt")  # eller swa.pkl afhængigt af dit run
+ckpt_path = os.path.join(model_dir, "swag-200.pt")  # eller swa.pkl afhængigt af dit run
 
 print("Loading:", ckpt_path)
 
-model_cfg = TwoDMLP              # config-objekt
-model = model_cfg.base(*model_cfg.args, **model_cfg.kwargs)
-model.load_state_dict(torch.load(ckpt_path)["model_state"])
+model_cfg = TwoDMLP
+model = SWAG(model_cfg.base, no_cov_mat=False, *model_cfg.args, **model_cfg.kwargs)
+ckpt = torch.load(ckpt_path)
+model.load_state_dict(ckpt["state_dict"])
+model.sample(scale=0.0)     
 model.eval()
 
 x_min, x_max = X[:,0].min() - 0.5, X[:,0].max() + 0.5
@@ -32,7 +33,6 @@ xx, yy = np.meshgrid(
 grid = np.c_[xx.ravel(), yy.ravel()]
 grid_torch = torch.tensor(grid, dtype=torch.float32)
 
-
 with torch.no_grad():
     logits = model(grid_torch)
     probs = torch.softmax(logits, dim=1)[:,1]   # probability for class 1
@@ -40,10 +40,11 @@ with torch.no_grad():
 
 plt.figure(figsize=(8,6))
 plt.contourf(xx, yy, Z, levels=50, cmap="coolwarm", alpha=0.7)
-
 plt.scatter(X[:,0], X[:,1], c=y, cmap="coolwarm", edgecolor="k", s=20)
 
 plt.title("Decision Boundary (Two Moons)")
 plt.xlabel("x1")
 plt.ylabel("x2")
-plt.show()
+out_path = "/work/SWAG/results/two_moons_decision_boundary.png"
+plt.savefig(out_path)
+print("Saved:", out_path)
