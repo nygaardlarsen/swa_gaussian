@@ -158,6 +158,10 @@ parser.add_argument(
 )
 parser.add_argument("--no_schedule", action="store_true", help="store schedule")
 
+parser.add_argument("--n_data", type=int, default=500, help="number of samples for Two Moons")
+parser.add_argument("--noise", type=float, default=0.2, help="noise for Two Moons dataset")
+
+
 args = parser.parse_args()
 
 args.device = None
@@ -186,7 +190,7 @@ model_cfg = getattr(models, args.model)
 
 print("Loading dataset %s from %s" % (args.dataset, args.data_path))
 if args.dataset.lower() == "two_moons":
-    X, y = make_moons(n_samples=500, noise=0.2, random_state=args.seed)
+    X, y = make_moons(n_samples=args.n_data, noise=args.noise, random_state=args.seed)
     X = torch.tensor(X, dtype=torch.float32)
     y = torch.tensor(y, dtype=torch.long)
     dataset = TensorDataset(X, y)

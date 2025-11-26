@@ -211,7 +211,8 @@ for i in range(args.N):
 
     print("Accuracy:", np.mean(np.argmax(predictions, axis=1) == targets))
     #nll is sum over entire dataset
-    print("NLL:", nll(predictions / (i + 1), targets))
+    print("Total NLL:", nll(predictions / (i + 1), targets))
+    print("Mean NLL:", nll(predictions/i+1)/len(targets))
 predictions /= args.N
 
 entropies = -np.sum(np.log(predictions + eps) * predictions, axis=1)
