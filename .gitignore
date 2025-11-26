@@ -69,7 +69,6 @@ target/
 
 *.pt
 *.npz
-*.png
 ._*
 *.out
 *.log
